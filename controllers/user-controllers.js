@@ -3,16 +3,8 @@ const { User } = require('../models');
 const userController = {
     getAllUsers(req, res) {
         User.find({})
-            // .populate({
-            //     path: 'thoughts',
-            //     select: '-__v'
-            // })
-            // .populate({
-            //     path: 'users',
-            //     select: '-__v'
-            // })
             .select('-__v')
-            .sort({ id: -1 })
+            .sort({ _id: -1 })
             .then(dbUserData => res.json(dbUserData))
             .catch(err => {
                 console.log(err);
@@ -20,11 +12,11 @@ const userController = {
             });
     },
     getUserById({ params }, res) {
-        User.findOne({ _id: params.id })
-            // .populate({
-            //     path: 'thoughts',
-            //     select: '-__v'
-            // })
+        User.findOne({ _id: params.userId })
+            .populate({
+                path: 'thoughts',
+                select: '-__v'
+            })
             // .populate({
             //     path: 'users',
             //     select: '-__v'
@@ -51,7 +43,7 @@ const userController = {
             })
     },
     updateUser({ params, body }, res) {
-        User.findByIdAndUpdate(params.id, body, { new: true, runValidators: true })
+        User.findByIdAndUpdate(params.userId, body, { new: true, runValidators: true })
             .then(dbUserData => {
                 if (!dbUserData) {
                     res.status(404).json({ message: 'Unable to locate user' })
@@ -62,7 +54,7 @@ const userController = {
             .catch(err => res.status(400).json(err))
     },
     deleteUser({ params }, res) {
-        User.findByIdAndDelete(params.id)
+        User.findByIdAndDelete(params.userId)
             .then(dbUserData => {
                 if (!dbUserData) {
                     res.status(404).json({ message: 'Unable to locate user' })
