@@ -17,10 +17,10 @@ const userController = {
                 path: 'thoughts',
                 select: '-__v'
             })
-            // .populate({
-            //     path: 'users',
-            //     select: '-__v'
-            // })
+            .populate({
+                path: 'friends',
+                select: '-__v'
+            })
             .select('-__v')
             .then(dbUserData => {
                 if (!dbUserData) {
@@ -63,6 +63,36 @@ const userController = {
                 res.json(dbUserData)
             })
             .catch(err => res.status(400).json(err)) 
+    },
+    addFriend({ params }, res) {
+        User.findByIdAndUpdate(
+            params.userId, 
+            { $push: { friends: params.friendId } },
+            { new: true }
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'Unable to locate user' })
+                return
+            }
+            res.json(dbUserData)
+        })
+        .catch(err => res.status(400).json(err))
+    },
+    removeFriend({ params }, res) {
+        User.findByIdAndUpdate(
+            params.userId,
+            { $pull: { friends: params.friendId } },
+            { new: true }
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'Unable to locate user' })
+                return
+            }
+            res.json(dbUserData)
+        })
+        .catch(err => res.status(400).json(err))
     }
 }
 
